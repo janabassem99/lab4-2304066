@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Lab 4 · The Reading Room{% endblock %}
+{% block content %}
+<p class="eyebrow">THE READING ROOM · LAB 4</p><h1>{{ title }}</h1><p>{{ subtitle }}</p>
+<nav class="lab4-tabs" aria-label="Library reports">
+{% for key,label in [('search','Search'),('catalogue','Catalogue'),('reports','Reports'),('loans','Loans'),('popular','Most borrowed'),('authors','Authors')] %}
+<a class="button {{ 'primary' if active==key else 'secondary' }}" href="{{ url_for('lab4.search') if key=='search' else url_for('lab4.report',page=key) }}" {% if active==key %}aria-current="page"{% endif %}>{{ label }}</a>
+{% endfor %}<a class="button secondary" href="{{ url_for('lab4.discussion') }}">Discussion</a></nav>
+{% if active=='search' %}
+<form method="get" class="form-panel lab4-search">
+<div class="field"><label for="keyword">Title keyword</label><input id="keyword" name="keyword" value="{{ request.args.get('keyword','') }}" placeholder="For example, Palace"></div>
+<div class="field"><label for="minimum">Minimum price</label><input id="minimum" type="number" name="minimum" min="0" step="0.01" value="{{ request.args.get('minimum','') }}" placeholder="0.00"></div>
+<div class="field"><label for="maximum">Maximum price</label><input id="maximum" type="number" name="maximum" min="0" step="0.01" value="{{ request.args.get('maximum','') }}" placeholder="Any price"></div>
+<div class="field"><label for="category">Category</label><select id="category" name="category"><option value="">All categories</option>{% for category in categories %}<option value="{{ category.category_id }}" {% if request.args.get('category')==category.category_id|string %}selected{% endif %}>{{ category.name }}</option>{% endfor %}</select></div>
+<button class="button primary" type="submit">Search books</button><a href="{{ url_for('lab4.search') }}">Clear</a>
+</form>{% if error %}<p class="notice error" role="alert">{{ error }}</p>{% endif %}
+{% endif %}
+{% for heading, records in sections %}<section class="lab4-result"><h2>{{ heading }}</h2>
+{% if records %}<div class="table-wrap"><table><thead><tr>{% for column in records[0] %}<th scope="col">{{ column|replace('_',' ')|title }}</th>{% endfor %}</tr></thead><tbody>
+{% for record in records %}<tr>{% for key,value in record.items() %}<td>{% if value is none %}—{% elif key in ['price','average_price','total_price','smallest_price','largest_price'] %}{{ '%.2f'|format(value) }}{% else %}{{ value }}{% endif %}</td>{% endfor %}</tr>{% endfor %}
+</tbody></table></div>{% else %}<p class="notice">No matching records.</p>{% endif %}</section>{% endfor %}
+{% endblock %}
