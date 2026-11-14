@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+website/.env
+website/static/uploads/*
+!website/static/uploads/.gitkeep
+*.log
+.pytest_cache/
+website/lab2/instance/
